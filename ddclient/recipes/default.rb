@@ -4,6 +4,7 @@
 #
 # Copyright 2010, RailsAnt, Inc.
 # Copyright 2011, Opscode, Inc.
+# Copyright 2012, Alex Kiernan
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,6 +17,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # 
+
+ddclient_secret = Chef::EncryptedDataBagItem.load("secrets", "ddclient")
+
 package "ddclient" do
   action :install
 end
@@ -30,6 +34,8 @@ template "/etc/ddclient.conf" do
   owner "root"
   group "root"
   mode "0600"
+  variables(:ddclient_login => ddclient_secret['login'] || node['ddclient']['login'],
+            :ddclient_password => ddclient_secret['password'] || node['ddclient']['password'])
   notifies :restart, "service[ddclient]"
 end
 
